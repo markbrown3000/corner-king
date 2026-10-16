@@ -59,7 +59,7 @@ function mkOpp(t,wc,used){
   return rivalOpp(rv,wc,t);
 }
 function dedupeOffers(){const pr=o=>o.bd!==undefined||o.lb!==undefined?0:o.rk?1:o.rm?2:o.ch?3:o.tn?4:o.dc?5:6,key=o=>o.name+'|'+o.wc+'|'+(o.tf||o.for||'')+'|'+(o.bd!==undefined?o.bd:'')+'|'+(o.lb!==undefined?o.lb:''),best={};G.offers.forEach(o=>{const k=key(o);if(!best[k]||pr(o)<pr(best[k]))best[k]=o});G.offers=G.offers.filter(o=>best[key(o)]===o)}
-function mkRivals(){const used=new Set(),out=[];for(let c=0;c<WC.length;c++)for(let i=0;i<20;i++){let n;do{n=nm()}while(used.has(n));used.add(n);out.push({name:n,gym:pick(GYMS),pts:Math.round(Math.pow(Math.random(),1.5)*70),wc:c})}return out}
+function mkRivals(){const used=new Set(),out=[];for(let c=0;c<WC.length;c++)for(let i=0;i<20;i++){let n;do{n=nm()}while(used.has(n));used.add(n);const r={name:n,gym:pick(GYMS),pts:Math.round(Math.pow(Math.random(),1.5)*70),wc:c};rivSet(r,34+Math.min(1,r.pts/100)*42+rnd(-3,3),ri(19,32),rPot());out.push(r)}return out}
 function ladder(c){if(c===WC.length)return WC.map((_,k)=>k).flatMap(k=>ladder(k)).sort((a,b)=>b.pts-a.pts).slice(0,30);return[...G.boxers.filter(b=>b.wc===c&&!b.am).map(b=>({name:b.name,pts:b.pts,me:1,b})),...G.rivals.filter(r=>r.wc===c)].sort((a,b)=>b.pts-a.pts)}
 const rank=b=>ladder(b.wc).findIndex(x=>x.b===b)+1;
 const staffCost=()=>G.staff.trainer*150+G.staff.cutman*100+G.staff.scout*80+(G.staff.physio||0)*90+(G.staff.nutri||0)*110+(G.arena||0)*150+(G.acad||0)*60+(G.med||0)*200+(G.promo||0)*300+(G.scn||0)*150+(G.gym2||0)*300;
@@ -136,7 +136,7 @@ function rndEvent(){
   else{const p=mkB(28,45);p.pot=Math.min(5,p.pot+1);p.seen=p.pot;G.market.unshift(p);log('🌟 A local kid, '+p.name+', turned up at the gym')}
 }
 function newMarket(){const s=G.scn||0;G.market=Array.from({length:3+s},()=>{const p=mkB(30+s*2,50+s*3);if(s>=2&&Math.random()<.5)p.pot=Math.min(5,p.pot+1);return p})}
-function newGame(opt){G={v8:1,wk:1,cash:6000,rep:0,gym:1,log:[],last:[],boxers:(opt&&opt.boxer?[opt.boxer]:[mkB(28,40),mkB(28,40)]),sel:null,champs:[],over:false,staff:{trainer:0,cutman:0,scout:0},debt:0,hof:[],diff:1,set:{spd:1,cb:0,big:0,hap:1,ring:0,plan:0,vol:1,voice:1,gu:1,cam:0,lite:0},rivals:mkRivals()};initBelts();initLB();newMarket();newOffers();G.sel=G.boxers[0].id;G.mode=MODE;if(MODE===1){G.camp={by:156,done:0};G.cash=3500;log('Campaign: win a world title within 156 weeks.')}if(MODE===2){G.iron=1;G.diff=2;log('Ironman: one life. Bankruptcy deletes this save.')}if(opt&&opt.name)G.gymName=opt.name;if(opt&&opt.fee)G.cash-=opt.fee;if(opt&&opt.boxer){G.note='Welcome to '+opt.name+'! '+opt.boxer.name+' is your first fighter'+(opt.fee?' (signed for £'+opt.fee.toLocaleString()+', £'+Math.round(G.cash).toLocaleString()+' left in the bank)':'')+'. Choose a training focus on the Gym tab, then book a fight in the Fights tab.';log('You opened '+opt.name+' and signed '+opt.boxer.name+'. Good luck!')}else log('You opened your boxing gym. Good luck!')}
+function newGame(opt){G={v8:1,v9:1,wk:1,cash:6000,rep:0,gym:1,log:[],last:[],boxers:(opt&&opt.boxer?[opt.boxer]:[mkB(28,40),mkB(28,40)]),sel:null,champs:[],over:false,staff:{trainer:0,cutman:0,scout:0},debt:0,hof:[],diff:1,set:{spd:1,cb:0,big:0,hap:1,ring:0,plan:0,vol:1,voice:1,gu:1,cam:0,lite:0},rivals:mkRivals()};initBelts();initLB();newMarket();newOffers();G.sel=G.boxers[0].id;G.mode=MODE;if(MODE===1){G.camp={by:156,done:0};G.cash=3500;log('Campaign: win a world title within 156 weeks.')}if(MODE===2){G.iron=1;G.diff=2;log('Ironman: one life. Bankruptcy deletes this save.')}if(opt&&opt.name)G.gymName=opt.name;if(opt&&opt.fee)G.cash-=opt.fee;if(opt&&opt.boxer){G.note='Welcome to '+opt.name+'! '+opt.boxer.name+' is your first fighter'+(opt.fee?' (signed for £'+opt.fee.toLocaleString()+', £'+Math.round(G.cash).toLocaleString()+' left in the bank)':'')+'. Choose a training focus on the Gym tab, then book a fight in the Fights tab.';log('You opened '+opt.name+' and signed '+opt.boxer.name+'. Good luck!')}else log('You opened your boxing gym. Good luck!')}
 function log(t){G.log.unshift('Wk '+G.wk+': '+t);G.log.length=Math.min(G.log.length,40)}
 let SLOT='1';try{SLOT=localStorage.getItem('boxslot')||'1'}catch(e){}
 function save(){if(MENU||!G)return;if(G.over&&G.iron){try{localStorage.removeItem('boxmgr'+SLOT)}catch(e){}return}try{localStorage.setItem('boxmgr'+SLOT,JSON.stringify(G))}catch(e){}}
@@ -147,7 +147,7 @@ function migrate8(){
   if(G.tn)G.tn.wc=m(G.tn.wc);G.rk=G.rk===3?WC.length:m(G.rk||0);G.v8=1;
 }
 const cwc=o=>{const w=+o.wc;return o.v===8?Math.max(0,Math.min(WC.length-1,w||0)):[2,4,7][w]!==undefined?[2,4,7][w]:4};
-function load(){try{const s=localStorage.getItem('boxmgr'+SLOT);if(s){G=JSON.parse(s);G.staff=G.staff||{trainer:0,cutman:0,scout:0};G.debt=G.debt||0;G.rivals=G.rivals||Array.from({length:8},()=>({name:nm(),pts:ri(10,60)}));G.rivals.forEach((r,i)=>{if(r.wc===undefined)r.wc=i%3});if(!G.v8)migrate8();WC.forEach((_,c)=>{while(G.rivals.filter(r=>r.wc===c).length<20)G.rivals.push({name:nm(),pts:Math.round(Math.pow(Math.random(),1.5)*70),wc:c})});if(!G.belts)initBelts();if(!G.lb)initLB();G.hof=G.hof||[];G.set=G.set||{spd:1,cb:0,big:0,hap:1,ring:0,plan:0};if(G.set.vol===undefined)G.set.vol=1;if(G.set.voice===undefined)G.set.voice=1;if(G.set.gu===undefined)G.set.gu=1;if(G.set.cam===undefined)G.set.cam=0;if(G.set.lite===undefined)G.set.lite=0;G.diff=G.diff===undefined?1:G.diff;G.boxers.forEach(b=>{b.trait=b.trait||pick(TRAITS);b.pts=b.pts||0;b.seen=b.seen||b.pot;b.mor=b.mor||70;b.con=b.con||78;if(b.wc===undefined)b.wc=1});newOffers();return true}}catch(e){}return false}
+function load(){try{const s=localStorage.getItem('boxmgr'+SLOT);if(s){G=JSON.parse(s);G.staff=G.staff||{trainer:0,cutman:0,scout:0};G.debt=G.debt||0;G.rivals=G.rivals||Array.from({length:8},()=>({name:nm(),pts:ri(10,60)}));G.rivals.forEach((r,i)=>{if(r.wc===undefined)r.wc=i%3});if(!G.v8)migrate8();WC.forEach((_,c)=>{while(G.rivals.filter(r=>r.wc===c).length<20)G.rivals.push({name:nm(),pts:Math.round(Math.pow(Math.random(),1.5)*70),wc:c})});if(!G.belts)initBelts();if(!G.lb)initLB();if(!G.v9)migrate9();G.rivals.forEach(r=>{if(r.ovr===undefined)rivSet(r,34+Math.min(1,r.pts/100)*42,ri(19,30),rPot())});G.hof=G.hof||[];G.set=G.set||{spd:1,cb:0,big:0,hap:1,ring:0,plan:0};if(G.set.vol===undefined)G.set.vol=1;if(G.set.voice===undefined)G.set.voice=1;if(G.set.gu===undefined)G.set.gu=1;if(G.set.cam===undefined)G.set.cam=0;if(G.set.lite===undefined)G.set.lite=0;G.diff=G.diff===undefined?1:G.diff;G.boxers.forEach(b=>{b.trait=b.trait||pick(TRAITS);b.pts=b.pts||0;b.seen=b.seen||b.pot;b.mor=b.mor||70;b.con=b.con||78;if(b.wc===undefined)b.wc=1});newOffers();return true}}catch(e){}return false}
 
 /* ---- fight sim ---- */
 const WM=f=>WCM[f.wc===undefined?4:Math.max(0,Math.min(7,f.wc))];
@@ -248,8 +248,8 @@ const est=(b,o)=>{let w=0;for(let i=0;i<120;i++)if(simFight(b,o).win===1)w++;ret
 function train(b){wearTick(b);if(b.cmp){campTick(b);return}
   if(b.inj>0){b.inj--;if(b.inj>0&&G.med&&Math.random()<G.med*.3)b.inj--;if(b.inj>0&&(G.staff.physio||(G.staff.trainer&&G.sn&&G.sn.trainer&&G.sn.trainer.t[0]==='Disciplinarian')))b.inj--;b.en=Math.min(100,b.en+25);return}
   if(b.tr==='rest'||b.en<25){b.en=Math.min(100,b.en+(b.tr==='rest'?45:20)+(G.staff.nutri?8:0));return}
-  if(b.tr==='spar'){const s=pick(ST),t=pick(ST),g=(.5+gymE()*.2)*(G.staff.trainer?1.25+.08*tlv():1)*(.6+b.pot*.18);b[s]=Math.min(99,b[s]+g*1.4*(1-b[s]/110));b[t]=Math.min(99,b[t]+g*(1-b[t]/110));b.en=Math.max(0,b.en-26);b.mor=Math.min(100,b.mor+2);if(Math.random()<.1){b.inj=ri(1,2);log(b.name+' was hurt sparring')}return}
-  const k=b.tr,g=(1.5+gymE()*.5)*(G.staff.trainer?1.25+.08*tlv():1)*trTrait(k)*(b.trait==='Workhorse'?1.15:1)*(.8+b.mor/250)*(1-b[k]/110)*(.6+b.pot*.18)*rnd(.5,1.5)*(b.age>32?.4:1)*(b.en>50?1:.6);
+  if(b.tr==='spar'){const s=pick(ST),t=pick(ST),g=(.5+gymE()*.2)*(G.staff.trainer?1.25+.08*tlv():1)*(.6+b.pot*.18);b[s]=Math.min(99,b[s]+g*1.4*(1-b[s]/110)*capMul(b,s));b[t]=Math.min(99,b[t]+g*(1-b[t]/110)*capMul(b,t));b.en=Math.max(0,b.en-26);b.mor=Math.min(100,b.mor+2);if(Math.random()<.1){b.inj=ri(1,2);log(b.name+' was hurt sparring')}return}
+  const k=b.tr,g=(1.5+gymE()*.5)*(G.staff.trainer?1.25+.08*tlv():1)*trTrait(k)*(b.trait==='Workhorse'?1.15:1)*(.8+b.mor/250)*(1-b[k]/110)*capMul(b,k)*(.6+b.pot*.18)*rnd(.5,1.5)*(b.age>32?.4:1)*(b.en>50?1:.6);
   b[k]=Math.min(99,b[k]+g);b.en=Math.max(0,b.en-14);
   if(Math.random()<.04&&b.en<50){b.inj=ri(1,3);log(b.name+' picked up a training injury')}
 }
@@ -555,9 +555,28 @@ function checklistHTML(){
 }
 function scoreNote(F){const S=F.S;return`<div class="card"><b>Scorecards after round ${F.r-1}</b><div class="m">${[0,1,2].map(i=>'Judge '+(i+1)+': '+S.jA[i]+'-'+S.jB[i]).join(' · ')}</div><div class="m">${S.jA.filter((a,i)=>a>S.jB[i]).length>=2?'You are ahead on the cards.':S.jA.filter((a,i)=>a<S.jB[i]).length>=2?'You are behind. Time to take risks.':'It is close.'}</div></div>`}
 function dailyOpp(c,dk){const r=rng(hstr(dk+'x')),pk=a=>a[Math.floor(r()*a.length)],o=Math.round(52+r()*22),f=()=>Math.round(o+(r()-.5)*12);return Object.assign(baseOpp(2,c),{name:pk(NAMES)+' '+pk(SUR),ovr:o,pow:f(),spd:f(),sta:f(),def:f(),trait:pk(TRAITS.slice(0,3)),sty:Math.floor(r()*4),lc:0,wc:c,dc:1,dk})}
-const rOvr=r=>Math.round(34+Math.min(1,r.pts/100)*42);
+const rOvr=r=>Math.round(r.ovr!==undefined?r.ovr:34+Math.min(1,r.pts/100)*42);
+const rPot=()=>Math.random()<.12?5:ri(1,4);
+function rivSet(r,o,age,pot){r.age=age;r.pot=pot;r.cap=Math.max(o,60+pot*6+ri(-3,5));r.ovr=Math.max(30,Math.min(97,o))}
+function rivMeans(){const m=[];WC.forEach((_,c)=>{const L=G.rivals.filter(r=>r.wc===c);m[c]=L.length?L.reduce((s,r)=>s+(r.ovr||50),0)/L.length:50});return m}
+function rivWeek(){G.rivals.forEach(r=>{if(r.ovr===undefined)return;if(r.age<29&&r.ovr<r.cap)r.ovr=Math.min(r.cap,r.ovr+(r.cap-r.ovr)*.006*rnd(.5,1.5))})}
+function rivNew(r){const taken=new Set([...G.rivals.map(x=>x.name),...G.boxers.map(x=>x.name)]);let n;do{n=nm()}while(taken.has(n));
+  r.name=n;r.gym=pick(GYMS);r.pts=ri(0,15);r.w=ri(0,3);r.l=0;r.ws=0;r.last='';r.fx=1;rivSet(r,ri(36,50),ri(19,22),rPot());return r}
+function rivYear(){const mine=c=>G.boxers.some(b=>b.wc===c);
+  G.rivals.forEach(r=>{if(r.ovr===undefined)return;r.age++;if(r.age>31)r.ovr=Math.max(30,r.ovr-rnd(1,3)*(r.age-30)/2);
+    const booked=G.boxers.some(b=>b.fight&&b.fight.name===r.name);
+    if(booked||!((r.age>=34&&Math.random()<.2+(r.age-34)*.2)||(r.age>=31&&r.ovr<50&&Math.random()<.3)))return;
+    const c=r.wc,old=r.name;
+    for(let k=0;k<4;k++){const be=beltOf(c,k);if(be&&!be.me&&be.n===old)vacate(c,k)}
+    for(let j=0;j<3;j++){const be=lbOf(c,j);if(be&&!be.me&&be.n===old)vacateL(c,j)}
+    G.offers=(G.offers||[]).filter(o=>o.name!==old);G.rv=(G.rv||[]).filter(x=>x.name!==old);
+    if(mine(c))log('\ud83d\udc4b '+old+' retired aged '+r.age+' ('+(r.w||0)+'-'+(r.l||0)+')');
+    rivNew(r);if(r.pot===5&&mine(c))log('\ud83c\udf1f '+r.name+' has turned pro at '+WC[c]+'. One to watch.')})}
+function migrate9(){const top=Math.max(76,Math.min(95,Math.max(0,...G.boxers.filter(b=>!b.am).map(ovr))));
+  WC.forEach((_,c)=>{const L=G.rivals.filter(r=>r.wc===c).sort((a,b)=>b.pts-a.pts),n=L.length;
+    L.forEach((r,i)=>{const o=top-Math.pow(i/Math.max(1,n-1),.9)*(top-38)+rnd(-2,2);rivSet(r,o,i<6?ri(24,31):ri(19,33),Math.max(rPot(),Math.min(5,Math.ceil((o-60)/6))))})});G.v9=1}
 function rivalOpp(r,wc,tier){
-  const q=rng(hstr(r.name+'p')),o=rOvr(r),f=()=>Math.round(o+(q()-.5)*12);
+  const q=rng(hstr(r.name+'p')),o=rOvr(r),f=()=>Math.max(10,Math.min(99,Math.round(o+(q()-.5)*12)));
   return Object.assign(baseOpp(tier,wc),{name:r.name,ovr:o,pow:f(),spd:f(),sta:f(),def:f(),trait:q()<.45?TRAITS[Math.floor(q()*3)]:'',sty:Math.floor(q()*4),rec:[r.w||0,r.l||0],rs:r.ws||0,rlast:r.last||'',lc:Math.random()<.6?0:ri(1,4)});
 }
 const rankOf=o=>{const i=ladder(o.wc).findIndex(x=>x.name===o.name&&!x.me);return i+1};
@@ -706,11 +725,12 @@ function amOffers(){G.boxers.forEach(b=>{if(!b.am||b.fight)return;for(let i=0;i<
 function amSettle(b,o,r){b.fight=null;b.wi=0;fought.add(b.id);b.en=Math.max(10,b.en-25);b.aw=b.aw||0;b.al=b.al||0;const t=b.name+' '+(r.win===1?'beat':r.win===-1?'lost to':'drew with')+' '+o.name+' (amateur, '+(r.how||'decision')+').';
   if(r.win===1){b.aw++;const k=pick(ST);b[k]=Math.min(99,b[k]+1.2+(b.pot>=4?.6:0));b.mor=Math.min(100,b.mor+8);G.cash+=60;log('\ud83e\udd4b Amateur win: '+b.name+' (+\u00a360, +'+k+')')}else if(r.win===-1){b.al++;b.mor=Math.max(0,b.mor-6);log('\ud83e\udd4b Amateur loss: '+b.name)}else log('\ud83e\udd4b Amateur draw: '+b.name);res.push({t,w:r.win})}
 
+const capMul=(b,k)=>{const v=b[k],c=74+(b.pot||3)*4;return(v<=c-10?1:v<c?1-.7*(v-(c-10))/10:.08)*(v>85?Math.max(.25,1-(v-85)/12):1)};
 const gymE=()=>G.gym+(G.gym2?1:0),rosterMax=()=>3+G.gym+(G.gym2?2:0);
 const CAMPS=[{n:'Altitude camp',st:'sta',cost:2500,wk:4,d:'Stamina: thin air, big lungs'},{n:'Strength camp',st:'pow',cost:2500,wk:4,d:'Power'},{n:'Speed and footwork camp',st:'spd',cost:2500,wk:4,d:'Speed'},{n:'Defence camp',st:'def',cost:2500,wk:4,d:'Defence'},{n:'Recovery retreat',st:'rec',cost:2000,wk:3,d:'Heals wear and tear and injuries, restores morale'}];
 function campTick(b){const c=b.cmp;c.left--;
   if(c.k==='rec'){b.wr=Math.max(0,(b.wr||0)-9);b.inj=Math.max(0,b.inj-1);b.en=100;b.mor=Math.min(100,b.mor+5)}
-  else{const g=3.2*(1+.08*tlv())*(.6+b.pot*.15);b[c.k]=Math.min(99,b[c.k]+g*(1-b[c.k]/115));b.en=Math.max(45,b.en-6);b.mor=Math.min(100,b.mor+2);b.wr=Math.max(0,(b.wr||0)-1)}
+  else{const g=3.2*(1+.08*tlv())*(.6+b.pot*.15);b[c.k]=Math.min(99,b[c.k]+g*(1-b[c.k]/115)*capMul(b,c.k));b.en=Math.max(45,b.en-6);b.mor=Math.min(100,b.mor+2);b.wr=Math.max(0,(b.wr||0)-1)}
   if(c.left<=0){b.cmp=null;b.en=Math.max(b.en,70);log('\ud83c\udfd5\ufe0f '+b.name+' is back from the '+CAMPS[c.i].n.toLowerCase()+(c.k==='rec'?'':' (+'+({pow:'power',spd:'speed',sta:'stamina',def:'defence'})[c.k]+')'))}}
 function campsHTML(b){return`<h3>Away camps</h3><div class="card"><div class="m">${b.cmp?'Away at the '+CAMPS[b.cmp.i].n.toLowerCase()+' ('+b.cmp.left+' weeks left). He cannot fight or train at the gym until he is back.':'Send him away to train hard for a few weeks. He cannot fight while he is away. A good trainer makes camps work better.'}</div>${CAMPS.map((c,i)=>{const why=b.cmp?'away':b.fight?'bout booked':(b.inj>0&&c.st!=='rec')?'injured':G.cash<c.cost?'no money':'';return`<div class="row" style="margin-top:8px"><span><b>${c.n}</b><br><span class="m">${c.d} \u00b7 ${c.wk} weeks \u00b7 \u00a3${c.cost.toLocaleString()}</span></span><button class="chip" data-a="xcamp" data-b="${b.id}" data-i="${i}" ${why?'disabled':''}>${why||'Send'}</button></div>`}).join('')}</div>`}
 const showBouts=()=>G.boxers.filter(b=>b.fight&&b.fight.lc===0&&!b.fight.am).map(b=>b.fight);
@@ -1032,7 +1052,7 @@ function loseBelt(b,o){const c=b.wc;let k=null;if(o.df)k=o.bd;else if(o.uni&&(b.
 function beltWeek(){if(!G.belts)return;for(let c=0;c<WC.length;c++)for(let k=0;k<4;k++){const be=G.belts[c][k];
   if(be&&be.me&&!G.boxers.some(b=>b.id===be.me)){vacate(c,k);continue}
   if(!be||(be.vac!==undefined&&G.wk-be.vac>=3)){const t=ladderB(c,k).list.find(x=>x.r);if(t){G.belts[c][k]={n:t.r.name,me:0,wk:G.wk,def:G.wk};if(G.boxers.some(b=>b.wc===c))log('\ud83c\udfc6 '+t.r.name+' is crowned '+BODIES[k][0]+' '+WC[c]+' champion')}}
-  else if(!be.me&&be.vac===undefined&&Math.random()<.012){const t=ladderB(c,k).list.find(x=>x.r);if(t){G.belts[c][k]={n:t.r.name,me:0,wk:G.wk,def:G.wk};if(G.boxers.some(b=>b.wc===c))log('\ud83d\udd04 '+t.r.name+' beat '+be.n+' for the '+BODIES[k][0]+' '+WC[c]+' belt')}}}}
+  else if(!be.me&&be.vac===undefined&&Math.random()<.025){const t=ladderB(c,k).list.find(x=>x.r),cr=G.rivals.find(x=>x.name===be.n&&x.wc===c);if(t&&(!cr||(t.r.ovr||50)+rnd(-8,8)>(cr.ovr||50))){G.belts[c][k]={n:t.r.name,me:0,wk:G.wk,def:G.wk};if(G.boxers.some(b=>b.wc===c))log('\ud83d\udd04 '+t.r.name+' beat '+be.n+' for the '+BODIES[k][0]+' '+WC[c]+' belt')}}}}
 function titleOffers(){
   G.boxers.forEach(b=>{if(b.fight||b.am)return;const c=b.wc;BODIES.forEach((bd,k)=>{
     const be=beltOf(c,k),L=ladderB(c,k).list,mine=!!(be&&be.me===b.id),rk=cRank(b,k),riv=n=>G.rivals.find(x=>x.name===n&&x.wc===c);
@@ -1063,8 +1083,8 @@ function adv(){
   if(G.show)settleShow();
   G.boxers.forEach(b=>{if(!fought.has(b.id))train(b);else b.en=Math.min(100,b.en+10)});
   const wages=G.boxers.reduce((s,b)=>s+wageOf(b),0),rent=100*G.gym,inc=120+G.gym*60+spons()+Math.round(450*(1-Math.exp(-G.rep/200)));
-  const intr=Math.round(G.debt*.015);G.cash+=inc-wages-rent-staffCost()-intr;G.wk++;if(G.wk%52===1)seasonEnd();G.rivals.forEach(r=>{const d=rnd(-2.5,3);if(d>1.4&&Math.random()<.2){r.w=(r.w||0)+1;r.ws=(r.ws||0)+1;r.last='W'}else if(d<-1.4&&Math.random()<.2){r.l=(r.l||0)+1;r.ws=0;r.last='L'}r.pts=Math.max(0,r.pts+d)});beltWeek();lbWeek();people();rndEvent();if(!G.ev&&G.boxers.length&&G.wk-(G.evw||-99)>=8&&Math.random()<.35)genEv();goals();
-  if(G.wk%52===1)G.boxers.forEach(b=>{b.age++;if(b.age>32)ST.forEach(k=>b[k]=Math.max(10,b[k]-rnd(0,1.5)*(b.age-32)/3))});
+  const intr=Math.round(G.debt*.015);G.cash+=inc-wages-rent-staffCost()-intr;G.wk++;if(G.wk%52===1)seasonEnd();rivWeek();const RM=rivMeans();G.rivals.forEach(r=>{const d=rnd(-2.5,3)+((r.ovr||50)-RM[r.wc])/30;if(d>1.4&&Math.random()<.2){r.w=(r.w||0)+1;r.ws=(r.ws||0)+1;r.last='W'}else if(d<-1.4&&Math.random()<.2){r.l=(r.l||0)+1;r.ws=0;r.last='L'}r.pts=Math.max(0,r.pts+d)});beltWeek();lbWeek();people();rndEvent();if(!G.ev&&G.boxers.length&&G.wk-(G.evw||-99)>=8&&Math.random()<.35)genEv();goals();
+  if(G.wk%52===1)rivYear();if(G.wk%52===1)G.boxers.forEach(b=>{b.age++;if(b.age>32)ST.forEach(k=>b[k]=Math.max(10,b[k]-rnd(0,1.5)*(b.age-32)/3))});
   if(G.wk%4===1)newMarket();
   if(G.acad&&G.wk%6===0){const p=mkB(24,36);p.age=ri(17,19);p.pot=Math.min(5,p.pot+G.acad);p.seen=p.pot;p.ac=1;G.market.unshift(p);log('🎓 Academy prospect: '+p.name)}
   newOffers();G.last=res;res=[];fought=new Set();
