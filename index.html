@@ -603,7 +603,7 @@ function ringStep(dt){
       if(e.t){f.t=e.t;f.k=e.k;f.z=e.z;f.pd=e.hd;f.pt=0;snd('miss')}
       if(e.kd&&!e.t)kdFx(e);
       e.dur=e.kd&&e.t?(e.tc=e.hd*.5+.55,e.ct>0?(e.ko?e.tc+9*.65+1.6:(e.tu=e.tc+(e.ct-1)*.65+.5)+.9):e.tc+1.6):(e.t?e.hd+.1:e.kd?(e.ko?2:1.5):.4);
-      if(e.rp){e.dur=e.tc+.3;R.ban='REPLAY';R.bt=1.2;const dd=R.fx[e.w==='A'?'B':'A'];dd.dn=0;dd.tdn=0}
+      if(e.rp){e.dur=(e.tc||(e.hd+.1))+.3;R.ban='REPLAY';R.bt=1.2;const dd=R.fx[e.w==='A'?'B':'A'];dd.dn=0;dd.tdn=0}
       if(e.kd&&e.ct>0&&e.w==='B'&&!e.rp&&G.set.gu!==0&&G.set.spd<99&&FN){const A=FN.S.A,nd=Math.max(8,Math.min(22,Math.round(10+(100-A.hp)/8+A.kd*2-A.sta/15)));R.gu={need:e.ko?nd:Math.max(5,Math.round(nd*.55)),taps:0,live:false,ko:!!e.ko}}
     }
   }
@@ -624,7 +624,7 @@ function ringStep(dt){
       if(e.ct<0&&!e.sb&&R.tm>=e.tc){e.sb=1;R.ban='REFEREE STOPS IT';R.bt=1.6;R.stp=1.6;snd('bell1');speak('Stop!',1.1,.7)}
     }else d.tdn=(e.ko||R.tm<1.05)?1:0;
   }
-  if(R.tm>=e.dur){if(e.kd&&e.t&&!e.rp)R.lastKD=Object.assign({},e);if(e.hit&&!e.rp&&(e.kd||e.d>7.5)){(R.hlr=R.hlr||[]).push(Object.assign({},e,{hn:R.hlr.length,sc:e.ko?300:e.kd?150+e.d:e.d}));if(R.hlr.length>14){R.hlr.sort((a,b)=>b.sc-a.sc);R.hlr.length=10;R.hlr.sort((a,b)=>a.hn-b.hn)}}R.cnt=0;R.gu=null;R.cl=0;if(e.kd&&e.ko&&!e.rp&&FN&&FN.done){R.q.unshift(Object.assign({},e,{rp:1,ct:0}));const w=FN.done.win===1;snd(w?'win':'lose');snd(w?'cheer':'boo');speak(w?'Knockout! And the winner... '+(FN.b.nick||FN.b.name.split(' ')[1]):'The winner... '+FN.o.name.split(' ')[1],.95,1,'a')}R.cur=null;if(!R.q.length)R.dirty=true}
+  if(R.tm>=e.dur){if(e.kd&&e.t&&!e.rp)R.lastKD=Object.assign({},e);if(e.hit&&!e.rp&&(e.kd||e.d>7.5)){(R.hlr=R.hlr||[]).push(Object.assign({},e,{hn:R.hlr.length,hsc:e.ko?300:e.kd?150+e.d:e.d,sc:undefined}));if(R.hlr.length>14){R.hlr.sort((a,b)=>b.hsc-a.hsc);R.hlr.length=10;R.hlr.sort((a,b)=>a.hn-b.hn)}}R.cnt=0;R.gu=null;R.cl=0;if(e.kd&&e.ko&&!e.rp&&FN&&FN.done){R.q.unshift(Object.assign({},e,{rp:1,ct:0}));const w=FN.done.win===1;snd(w?'win':'lose');snd(w?'cheer':'boo');speak(w?'Knockout! And the winner... '+(FN.b.nick||FN.b.name.split(' ')[1]):'The winner... '+FN.o.name.split(' ')[1],.95,1,'a')}R.cur=null;if(!R.q.length)R.dirty=true}
 }
 function rng(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 function hstr(s){let x=2166136261;for(let i=0;i<s.length;i++){x^=s.charCodeAt(i);x=Math.imul(x,16777619)}return x>>>0}
@@ -1188,7 +1188,7 @@ function vSet0(){
   return`<h3>Gym</h3><div class="card"><input id="gname" value="${esc(G.gymName||'')}" placeholder="Gym name" maxlength="20" style="${INP}"><div class="chips"><button class="chip on" data-a="gsave">Save name</button></div><div class="m" style="margin-top:8px">Trunk colour for your boxers</div><div class="chips">${TRK.map(c=>sw(c,G.gymCol===c,'gcol',c)).join('')}</div></div>
   <h3>Fights</h3><div class="card">${T('Animation speed','spd',[['Normal',1],['Fast',1.8],['Instant',99]])}${T('Venue','ring',[['Classic',0],['Club',1],['Arena',2],['Stadium',3],['Auto (by reputation)',4],...(MON.shop?PREMT.map((t,i)=>[t.n+(owns(t.own)?'':' \ud83d\udd12'),5+i]):[])])}${T('Camera (Auto zooms in on big moments)','cam',[['Auto',0],['Steady',1],['Close',2]])}${T('Corner plan (adds a one-tap button on fight night)','plan',PLANS.map((n,i)=>[n,i]))}</div>
   <h3>Display and sound</h3><div class="card">${T('Graphics','lite',[['Full',0],['Light (older phones)',1]])}${T('Colour-blind palette','cb',[['Off',0],['On',1]])}${T('Large text','big',[['Off',0],['On',1]])}${T('Reduce motion (no screen shake, flashes or slow motion)','rmo',[['Off',0],['On',1]])}${(S.tips===undefined&&(S.tips=1),'')}${T('Tips for new features','tips',[['On',1],['Off',0]])}${T('Vibration','hap',[['On',1],['Off',0]])}${T('Sound volume','vol',[['Off',0],['Low',.35],['Full',1]])}${T('Voice (uses your phone\'s built-in voice)','voice',[['Off',0],['Referee counts only',1],['Full announcer',2]])}${T('Get-up game (tap to rise when knocked down)','gu',[['On',1],['Off',0]])}</div>
-  <h3>Backup</h3><div class="card">${bkUI()}</div><h3>Save slot</h3><div class="chips">${['1','2','3'].map(k=>ch('Slot '+k,SLOT===k,'slot',k)).join('')}</div><div class="chips" style="margin-top:12px"><button class="chip" data-a="tutr">How to play</button><button class="chip on" data-a="menu">Main menu</button></div>`;
+  <h3>What\u2019s new in 1.0.5</h3><div class="card"><div class="log"><b>Version 1.0.5</b></div><div class="log">\u2022 Fight night look: hit-stop and slow motion, blood and sweat, swelling and cuts, circling fighters, round dots, momentum bar, ring-card girl, corner trainer, announcer, scorecard reveal and a shareable fight poster</div><div class="log">\u2022 Highlights replay after a fight</div><div class="log">\u2022 Rarer draws and more upsets</div><div class="log">\u2022 New fight options: Go for the finish and Survive</div><div class="log">\u2022 Lasting injuries after hard knockout losses</div><div class="log">\u2022 Rival callouts, plus new style matchups, story events, sponsors, fight cards, rival gyms, dynasty and heirs</div><div class="log">\u2022 New app look, and Mark Brown, Chris Hayles and Paddy Giles appear in the market at random</div><div class="log">\u2022 Automatic backup with restore, save as file, and a Reduce motion option</div></div><h3>Backup</h3><div class="card">${bkUI()}</div><h3>Save slot</h3><div class="chips">${['1','2','3'].map(k=>ch('Slot '+k,SLOT===k,'slot',k)).join('')}</div><div class="chips" style="margin-top:12px"><button class="chip" data-a="tutr">How to play</button><button class="chip on" data-a="menu">Main menu</button></div>`;
 }
 const hsh=n=>{const v=Math.sin(n*12.9898)*43758.5453;return v-Math.floor(v)};
 const PA={sk:'#d9a47a',sk2:'#b27e57',hair:'#2b1d14',tr:'#1565c0',gl:'#1e88e5',gh:'#bbdefb'};
@@ -1415,7 +1415,7 @@ function fnResume(){const z=G&&G.fn;if(!z)return false;const b=G.boxers.find(x=>
 function announcer(){const F=FN;if(!F)return;const b=F.b,o=F.o,hv=b.wc===7,lim=WKG[Math.max(0,Math.min(7,b.wc))],kg=f=>hv?(lim+1+(hstr(f.name+'wi')%190)/10).toFixed(0):(lim-(hstr(f.name+'wi')%90)/100).toFixed(1);
   const l1='In the blue corner, from '+(G.gymName||'the home gym')+', weighing '+kg(b)+' kilos, with '+b.w+' wins and '+b.l+' defeats... '+(b.nick?b.nick+' ':'')+b.name+'!',l2='And in the red corner, from '+(gymOfO(o)||'the challenger\u2019s camp')+', weighing '+kg(o)+' kilos'+(o.rec?', with '+o.rec[0]+' wins and '+o.rec[1]+' defeats':'')+'... '+o.name+'!';
   ringEv({tx:'\ud83c\udf99\ufe0f '+l1,sp:l1,sn:snapOf(F)});ringEv({tx:'\ud83c\udf99\ufe0f '+l2,sp:l2,sn:snapOf(F)})}
-function startFN(b){startFN0(b);fnSave();introFN();announcer();const e=RING.q[0];if(e&&e.bn&&G.show&&G.show.hl&&b.fight&&b.fight.lc===0&&!b.fight.am)e.bn=(b.id===G.show.hl?'MAIN EVENT: ':'UNDERCARD: ')+e.bn;crowdIntro()}
+function startFN(b){startFN0(b);fnSave();introFN();announcer();const e=RING.q.find(x=>x.bn);if(e&&e.bn&&G.show&&G.show.hl&&b.fight&&b.fight.lc===0&&!b.fight.am)e.bn=(b.id===G.show.hl?'MAIN EVENT: ':'UNDERCARD: ')+e.bn;crowdIntro()}
 function introFN(){const F=FN;if(!F)return;const b=F.b,o=F.o,rk=b.am?0:rank(b),S=F.S,mt=o.sc?matchTag(b,o):'';
   ringEv({tx:b.name+' ('+b.w+'-'+b.l+(rk?', ranked #'+rk:'')+') meets '+o.name+(o.rec?' ('+o.rec[0]+'-'+o.rec[1]+')':'')+' over '+S.nr+' rounds.',sn:snapOf(F)});
   if(o.sc)ringEv({tx:'Styles: '+STYLES[b.sty||0]+' against '+STYLES[o.sty||0]+(mt?' ('+mt.replace(/^ . /,'')+')':'')+'.',sn:snapOf(F)})}
@@ -1640,7 +1640,7 @@ const A={
   tnenter:d=>{const b=G.boxers.find(x=>x.id===d.b);if(!b||G.cash<400||G.tn)return;G.cash-=400;G.tn={id:b.id,wc:b.wc,rd:0,name:TNN[Math.floor(G.wk/13)%4],start:G.wk,last:G.wk};newOffers();log('🏆 '+b.name+' entered the '+G.tn.name)},
   evp:d=>evPick(+d.k),
   camp:d=>{const b=G.boxers.find(x=>x.id===d.b);if(b&&b.fight&&!b.camp&&G.cash>=400){G.cash-=400;b.camp=1;b.mor=Math.min(100,b.mor+5)}},
-  reel:()=>{const L=(RING.hlr||[]).slice().sort((a,b)=>b.sc-a.sc).slice(0,6).sort((a,b)=>a.hn-b.hn);if(!L.length)return;ringEv({tx:'\ud83c\udfac Highlight reel: the best moments of the fight'});L.forEach((e,i)=>{RING.q.push({tx:'Highlight '+(i+1)+' of '+L.length+(e.kd?' - knockdown':' - big shot')});RING.q.push(Object.assign({},e,{rp:1,ct:e.kd&&!e.ko?0:e.ct,up:0,sb:0}))})},
+  reel:()=>{const L=(RING.hlr||[]).slice().sort((a,b)=>b.hsc-a.hsc).slice(0,6).sort((a,b)=>a.hn-b.hn);if(!L.length)return;ringEv({tx:'\ud83c\udfac Highlight reel: the best moments of the fight'});L.forEach((e,i)=>{RING.q.push({tx:'Highlight '+(i+1)+' of '+L.length+(e.kd?' - knockdown':' - big shot')});RING.q.push(Object.assign({},e,{rp:1,sc:undefined,tc:undefined,ct:e.kd&&!e.ko?0:e.ct,up:0,sb:0}))})},
   rpl:()=>{if(RING.lastKD){RING.q.push(Object.assign({},RING.lastKD,{rp:1,ct:0,ko:1,up:0,sb:0}))}},
   mmode:d=>{MODE=+d.k},
   tutr:()=>{G.tut=1;tab='gym';G.pf=null},
